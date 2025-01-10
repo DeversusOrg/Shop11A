@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop11A.Models;
 
 namespace Shop11A.Controllers
+{
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -49,15 +50,15 @@ public class HomeController : Controller
     {
         return View(_cart);
     }
-
-    public IActionResult Checkout()
-    {
-        if (_cart.Items.Any())
-        {
-            _cart = new Cart();
-            TempData["Message"] = "Thank you for your purchase!";
-        }
-        return RedirectToAction("Index");
+      public IActionResult Checkout()
+      {
+          if (_cart.Items.Any())
+          {
+              _cart.ProcessCheckout();
+              TempData["Message"] = "Thank you for your purchase!";
+          }
+          return RedirectToAction("Index");
+      }
     }
 
     public IActionResult Privacy()
