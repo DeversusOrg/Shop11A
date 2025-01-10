@@ -3,41 +3,72 @@ using Microsoft.AspNetCore.Mvc;
 using Shop11A.Models;
 
 namespace Shop11A.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private static Cart _cart = new Cart();
+
+    public HomeController(ILogger<HomeController> logger)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    public List<Product> products = new List<Product>
+    {
+        new Product{ Id = 1, Name = "Tablet 11a", Description = "Super mega giga tablet 11a", Price = 1000.11M, ImageUrl = "/images/t1.jpg" },
+        new Product{ Id = 2, Name = "Tablet 11b", Description = "Super mega giga tablet 11b", Price = 1234.11M, ImageUrl = "/images/t2.jpg" },
+        new Product{ Id = 3, Name = "Tablet 11c", Description = "Super mega giga tablet 11c", Price = 1500.11M, ImageUrl = "/images/t3.jpg" },
+    };
+
+    public IActionResult Index()
+    {
+        ViewBag.Cart = _cart;
+        return View(products);
+    }
+
+    [HttpPost]
+    public IActionResult AddToCart(int id)
+    {
+        var product = products.FirstOrDefault(p => p.Id == id);
+        if (product != null)
         {
-            _logger = logger;
+            if (_cart.RemainingBalance >= product.Price)
+            {
+                _cart.Items.Add(product);
+                TempData["Message"] = "Product added to cart successfully!";
+            }
+            else
+            {
+                TempData["Error"] = "Not enough money in your wallet! You need more BGN!";
+            }
         }
+        return RedirectToAction("Index");
+    }
 
-        public List<Product> products = new List<Product>
+    public IActionResult Cart()
+    {
+        return View(_cart);
+    }
+
+    public IActionResult Checkout()
+    {
+        if (_cart.Items.Any())
         {
-            new Product{ Id = 1, Name = "Tablet 11a", Description = "Super mega giga tablet 11a", Price = 1000.11M, ImageUrl = "/images/t1.jpg" },
-            new Product{ Id = 2, Name = "Tablet 11b", Description = "Super mega giga tablet 11b", Price = 1234.11M, ImageUrl = "/images/t2.jpg" },
-            new Product{ Id = 3, Name = "Tablet 11c", Description = "Super mega giga tablet 11c", Price = 1500.11M, ImageUrl = "/images/t3.jpg" },
-
-            new Product{ Id = 4, Name = "MehanoPhone 11d", Description = "Super mega giga MehanoPhone 11d", Price = 1500.11M, ImageUrl = "/images/p1.jpg" },
-            new Product{ Id = 5, Name = "MehanoPhone 11e", Description = "Super mega giga MehanoPhone 11e", Price = 1600.11M, ImageUrl = "/images/p2.jpg" },
-            new Product{ Id = 6, Name = "MehanoPhone 11f", Description = "Super mega giga MehanoPhone 11f", Price = 1700.11M, ImageUrl = "/images/p3.jpg" }
-        };
-
-        public IActionResult Index()
-        {
-            return View(products);
+            _cart = new Cart();
+            TempData["Message"] = "Thank you for your purchase!";
         }
+        return RedirectToAction("Index");
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    public IActionResult Privacy()
+    {
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
     }
 }

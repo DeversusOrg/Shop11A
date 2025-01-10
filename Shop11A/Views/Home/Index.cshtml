@@ -1,32 +1,39 @@
-﻿@model IEnumerable<Shop11A.Models.Product>
+﻿@model List<Product>
 
+@if (TempData["Message"] != null)
+{
+	<div class="alert alert-success">@TempData["Message"]</div>
+}
 
+@if (TempData["Error"] != null)
+{
+	<div class="alert alert-danger">@TempData["Error"]</div>
+}
 
-<div class="container-fluid d-flex align-items-center justify-content-center">
-			<img src="http://localhost:5041/images/banner.png" alt="banner" class="" />
+<div class="container">
+	<div class="row">
+		<div class="col-md-12 mb-3">
+			<h3>Your Wallet: @Cart.WalletAmount BGN</h3>
+			<a asp-action="Cart" class="btn btn-primary">View Cart (@ViewBag.Cart.Items.Count)</a>
 		</div>
-
-
-<h1 class="text-center">Our products</h1>
-
-<div class="row col-md-12">
-	@foreach (var product in Model)
-	{
-		var imgUrl = "http://localhost:5041" + @product.ImageUrl;
-		<div class="col-md-4">
-			<div class="card mb-4 shadow-sm">
-				<img src="@imgUrl" alt="@product.Name" class="img-fluid img-thumbnail" />
-				<div class="card-body">
-					<h5 class="card-title">@product.Name</h5>
-					<p class="card-text">@product.Description</p>
-					<div class="d-flex justify-content-between align-items-center">
-						<span>@product.Price</span>
-						<button type="button" class="btn btn-lg btn-outline-secondary">Add to cart</button>
+	</div>
+	<div class="row">
+		@foreach (var product in Model)
+		{
+			<div class="col-md-4 mb-4">
+				<div class="card">
+					<img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
+					<div class="card-body">
+						<h5 class="card-title">@product.Name</h5>
+						<p class="card-text">@product.Description</p>
+						<p class="card-text"><strong>Price: @product.Price BGN</strong></p>
+						<form asp-action="AddToCart" method="post">
+							<input type="hidden" name="id" value="@product.Id" />
+							<button type="submit" class="btn btn-primary">Add to Cart</button>
+						</form>
 					</div>
 				</div>
 			</div>
-		</div>
-	}
-
+		}
+	</div>
 </div>
-
